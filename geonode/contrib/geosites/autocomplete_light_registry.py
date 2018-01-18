@@ -9,6 +9,7 @@ class ResourceBaseAutocomplete(ResourceBaseAutocomplete):
          self.choices= self.choices.filter(id__in=resources_for_site())
          return super(ResourceBaseAutocomplete, self).choices_for_request()
 
+
 register(ResourceBaseAutocomplete,
          search_fields=['title'],
          order_by=['title'],
