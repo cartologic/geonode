@@ -29,7 +29,7 @@ from django.shortcuts import redirect
 from django.db.models import Q
 
 from guardian.shortcuts import get_objects_for_user
-from account.views import LoginView
+from allauth.account.views import LoginView
 
 from geonode.utils import _get_basic_auth_info
 from geonode.layers.views import _resolve_layer, layer_detail
@@ -232,7 +232,8 @@ class SiteLoginView(LoginView):
     def form_valid(self, form):
         if not users_for_site().filter(username=form.user.username).exists() and not form.user.is_superuser:
             return redirect(settings.ACCOUNT_LOGIN_URL)
-
-        self.login_user(form)
-        self.after_login(form)
-        return redirect(self.get_success_url())
+        success_url = self.get_success_url()
+        try:
+            return form.login(self.request, redirect_url=success_url)
+        except ImmediateHttpResponse as e:
+            return e.response
