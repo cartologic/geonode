@@ -24,7 +24,7 @@ from django.views.generic import TemplateView
 from geonode.urls import urlpatterns
 from .api import api
 from .views import site_layer_detail, site_document_detail, site_map_detail, layer_acls, \
-        ajax_login, ajax_lookup, SiteLoginView
+        ajax_login, ajax_lookup, SiteLoginView, site_h_keywords
 
 from geonode.geoserver import views
 from geonode.layers import views as layers_views
@@ -74,6 +74,7 @@ urlpatterns = [
     url(r"^account/login/$", SiteLoginView.as_view(), name="account_login"),
     url(r'^account/ajax_login$', ajax_login, name='account_ajax_login'),
     url(r'^account/ajax_lookup$', ajax_lookup, name='account_ajax_lookup'),
+    url(r'^h_keywords_api$',site_h_keywords,name='h_keywords_api'),
 ] + urlpatterns
 
 handler403 = 'geonode.views.err403'

@@ -29,7 +29,7 @@ from geonode.maps.models import Map
 from geonode.documents.models import Document
 from geonode.people.models import Profile
 from geonode.groups.models import GroupProfile
-
+from geonode.base.models import HierarchicalKeyword
 
 class SiteResources(models.Model):
     """Relations to link the resources to the sites"""
@@ -65,6 +65,16 @@ class SiteGroups(models.Model):
     class Meta:
         verbose_name_plural = 'Site Group'
 
+class SiteKeyWords(models.Model):
+    """Relations to link the people to the sites"""
+    site = models.OneToOneField(Site)
+    keyword = models.ManyToManyField(HierarchicalKeyword, blank=True)
+
+    def __unicode__(self):
+        return self.site.name
+
+    class Meta:
+        verbose_name_plural = 'Site Keyword'
 
 
 def post_save_resource(instance, sender, **kwargs):
@@ -81,7 +91,7 @@ def post_save_site(instance, sender, **kwargs):
     SiteResources.objects.get_or_create(site=instance)
     SitePeople.objects.get_or_create(site=instance)
     SiteGroups.objects.get_or_create(site=instance)
-
+    SiteKeyWords.objects.get_or_create(site=instance)
 
 def post_delete_resource(instance, sender, **kwargs):
     """Signal to ensure that on resource delete it get remove from the SiteResources as well"""
@@ -125,6 +135,22 @@ def post_delete_group(instance, sender, **kwargs):
     current_site = Site.objects.get_current()
     SiteGroups.objects.get(site=current_site).group.remove(instance)
 
+def post_save_keyword(instance, sender, **kwargs):
+    """Signal to ensure that every created keyword is
+    assigned to the current site and to the master site"""
+    current_site = Site.objects.get_current()
+    master_site = Site.objects.get(id=1)
+    SiteKeyWords.objects.get(site=current_site).keyword.add(instance)
+    SiteKeyWords.objects.get(site=master_site).keyword.add(instance)
+
+
+def post_delete_keyword(instance, sender, **kwargs):
+    """Signal to ensure that on keyword delete it get remove from the SitekeywordResources as well"""
+    current_site = Site.objects.get_current()
+    master_site = Site.objects.get(id=1)
+    SiteKeyWords.objects.get(site=current_site).keyword.remove(instance)
+    SiteKeyWords.objects.get(site=master_site).keyword.remove(instance)
+
 
 # Django doesn't propagate the signals to the parents so we need to add the listeners on the children
 if 'geonode.contrib.geosites' in settings.INSTALLED_APPS:
@@ -140,3 +166,5 @@ if 'geonode.contrib.geosites' in settings.INSTALLED_APPS:
     signals.post_delete.connect(post_delete_profile, sender=Profile)
     signals.post_save.connect(post_save_group, sender=GroupProfile)
     signals.post_delete.connect(post_delete_group, sender=GroupProfile)
+    signals.post_save.connect(post_save_keyword, sender=HierarchicalKeyword)
+    signals.post_delete.connect(post_delete_keyword, sender=HierarchicalKeyword)

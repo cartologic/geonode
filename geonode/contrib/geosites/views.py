@@ -40,9 +40,9 @@ from geonode.layers.models import Layer
 from geonode.geoserver.helpers import ogc_server_settings
 from geonode.groups.models import GroupProfile
 from geonode.views import AjaxLoginForm
-
 from .models import SiteResources
-from .utils import resources_for_site, users_for_site, groups_for_site
+from .utils import resources_for_site, users_for_site, groups_for_site, dump_bulk_tree
+
 
 _PERMISSION_MSG_VIEW = ('You don\'t have permissions to view this document')
 
@@ -237,3 +237,11 @@ class SiteLoginView(LoginView):
             return form.login(self.request, redirect_url=success_url)
         except ImmediateHttpResponse as e:
             return e.response
+
+
+def site_h_keywords(request):
+    
+    from geonode.base.models import HierarchicalKeyword as hk
+    site_kw = hk.objects.filter( sitekeywords=get_current_site(request).id)
+    keywords = json.dumps(dump_bulk_tree(site_kw))
+    return HttpResponse(content=keywords)
