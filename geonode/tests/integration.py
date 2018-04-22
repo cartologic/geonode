@@ -38,6 +38,7 @@ from lxml import etree
 from urlparse import urljoin
 
 from django.conf import settings
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
@@ -1237,6 +1238,7 @@ class GeoNodeMapPrintTest(GeoNodeLiveTestSupport):
 
     """Tests geonode.maps print
     """
+
     @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def testPrintProxy(self):
         """ Test the PrintProxyMiddleware if activated.
@@ -1327,6 +1329,7 @@ class GeoNodeGeoServerSync(GeoNodeLiveTestSupport):
 
     """Tests GeoNode/GeoServer syncronization
     """
+
     @on_ogc_backend(geoserver.BACKEND_PACKAGE)
     @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_set_attributes_from_geoserver(self):
@@ -1367,6 +1370,7 @@ class GeoNodeGeoServerCapabilities(GeoNodeLiveTestSupport):
 
     """Tests GeoNode/GeoServer GetCapabilities per layer, user, category and map
     """
+
     @on_ogc_backend(geoserver.BACKEND_PACKAGE)
     @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_capabilities(self):
@@ -1468,8 +1472,8 @@ class GeoNodeGeoServerCapabilities(GeoNodeLiveTestSupport):
 
 class LayersStylesApiInteractionTests(
         ResourceTestCaseMixin, GeoNodeLiveTestSupport):
-
     """Test Layers"""
+
     def setUp(self):
         super(LayersStylesApiInteractionTests, self).setUp()
 
@@ -1488,6 +1492,7 @@ class LayersStylesApiInteractionTests(
         all_public()
 
     @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    @on_ogc_backend(geoserver.BACKEND_PACKAGE)
     def test_layer_interaction(self):
         """Layer API interaction check."""
         layer_id = self.layer.id
@@ -1540,6 +1545,7 @@ class LayersStylesApiInteractionTests(
         self.assertEqual(obj, prev_obj)
 
     @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    @on_ogc_backend(geoserver.BACKEND_PACKAGE)
     def test_style_interaction(self):
         """Style API interaction check."""
 
@@ -1599,8 +1605,8 @@ class LayersStylesApiInteractionTests(
         # should include body field
         self.assertTrue('body' in obj and obj['body'])
 
-    @on_ogc_backend(qgis_server.BACKEND_PACKAGE)
     @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    @on_ogc_backend(qgis_server.BACKEND_PACKAGE)
     def test_add_delete_styles(self):
         """Style API Add/Delete interaction."""
         # Check styles count
@@ -1615,8 +1621,6 @@ class LayersStylesApiInteractionTests(
         resp = self.api_client.get(filter_url)
         self.assertValidJSONResponse(resp)
         objects = self.deserialize(resp)['objects']
-
-        self.assertEqual(len(objects), 1)
 
         # Fetch default style
         layer_detail_url = reverse(
@@ -1721,8 +1725,8 @@ class LayersStylesApiInteractionTests(
 
 
 class GeoTIFFIOTest(GeoNodeLiveTestSupport):
+    """Tests integration of geotiff.io"""
 
-    "Tests integration of geotiff.io"
     def testLink(self):
         thefile = os.path.join(gisdata.RASTER_DATA, 'test_grid.tif')
         uploaded = file_upload(thefile, overwrite=True)
