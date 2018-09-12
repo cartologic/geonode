@@ -1423,6 +1423,7 @@ def get_layer(request, layername):
             'bbox_x1': layer_obj.bbox_x1,
             'bbox_y0': layer_obj.bbox_y0,
             'bbox_y1': layer_obj.bbox_y1,
+            'type': slugify(layer_obj.display_type),
             'attributes': dict([(l.attribute, l.attribute_label) for l in visible_attributes]),
         }
         return HttpResponse(json.dumps(
