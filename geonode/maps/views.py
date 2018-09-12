@@ -18,61 +18,57 @@
 #
 #########################################################################
 
-import math
 import logging
+import math
 import urlparse
 from itertools import chain
 
-from guardian.shortcuts import get_perms
-
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.urlresolvers import reverse
-from django.shortcuts import redirect
 from django.core.serializers.json import DjangoJSONEncoder
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotAllowed, HttpResponseServerError
-from django.shortcuts import render, get_object_or_404
-from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.db.models import F
+from django.http import (Http404, HttpResponse, HttpResponseNotAllowed,
+                         HttpResponseRedirect, HttpResponseServerError)
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.html import strip_tags
 from django.utils.translation import ugettext as _
+from django.views.decorators.clickjacking import (xframe_options_exempt,
+                                                  xframe_options_sameorigin)
+from django.views.decorators.http import require_http_methods
+from guardian.shortcuts import get_perms
+from requests.compat import urljoin
+
+from geonode import geoserver, qgis_server
+from geonode.base.forms import CategoryForm
+from geonode.base.models import TopicCategory
+from geonode.base.views import batch_modify
+from geonode.documents.models import get_related_documents
+from geonode.groups.models import GroupProfile
+from geonode.layers.models import Layer
+from geonode.layers.views import _resolve_layer
+from geonode.maps.forms import MapForm
+from geonode.maps.models import Map, MapLayer, MapSnapshot
+from geonode.people.forms import ProfileForm
+from geonode.security.views import _perms_info_json
+from geonode.utils import (DEFAULT_ABSTRACT, DEFAULT_TITLE, bbox_to_projection,
+                           build_social_links, check_ogc_backend,
+                           default_map_config, forward_mercator,
+                           layer_from_viewer_config, llbbox_to_mercator,
+                           num_decode, num_encode, resolve_object)
+
+from .tasks import delete_map
+
 try:
     # Django >= 1.7
     import json
 except ImportError:
     # Django <= 1.6 backwards compatibility
     from django.utils import simplejson as json
-from django.utils.html import strip_tags
-from django.db.models import F
-from django.views.decorators.clickjacking import (xframe_options_exempt,
-                                                  xframe_options_sameorigin)
-from django.views.decorators.http import require_http_methods
 
-from geonode.layers.models import Layer
-from geonode.maps.models import Map, MapLayer, MapSnapshot
-from geonode.layers.views import _resolve_layer
-from geonode.utils import (DEFAULT_TITLE,
-                           DEFAULT_ABSTRACT,
-                           forward_mercator,
-                           llbbox_to_mercator,
-                           bbox_to_projection,
-                           default_map_config,
-                           resolve_object,
-                           layer_from_viewer_config,
-                           check_ogc_backend)
-from geonode.maps.forms import MapForm
-from geonode.security.views import _perms_info_json
-from geonode.base.forms import CategoryForm
-from geonode.base.models import TopicCategory
-from .tasks import delete_map
-from geonode.groups.models import GroupProfile
 
-from geonode.documents.models import get_related_documents
-from geonode.people.forms import ProfileForm
-from geonode.utils import num_encode, num_decode
-from geonode.utils import build_social_links
-from geonode import geoserver, qgis_server
-from geonode.base.views import batch_modify
 
-from requests.compat import urljoin
 
 if check_ogc_backend(geoserver.BACKEND_PACKAGE):
     # FIXME: The post service providing the map_status object
@@ -771,6 +767,9 @@ def add_layers_to_map_config(
             layer = _resolve_layer(request, layer_name)
         except ObjectDoesNotExist:
             # bad layer, skip
+            continue
+        except Http404:
+            # can't find the layer, skip it.
             continue
 
         if not request.user.has_perm(
