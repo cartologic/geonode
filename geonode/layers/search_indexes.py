@@ -29,74 +29,84 @@ from geonode.maps.models import Layer
 class LayerIndex(indexes.SearchIndex, indexes.Indexable):
     id = indexes.IntegerField(model_attr='resourcebase_ptr_id')
     abstract = indexes.CharField(model_attr="abstract", boost=1.5)
-    category__gn_description = indexes.CharField(model_attr="category__gn_description", null=True)
+    category__gn_description = indexes.CharField(
+        model_attr="category__gn_description", null=True)
     csw_type = indexes.CharField(model_attr="csw_type")
     csw_wkt_geometry = indexes.CharField(model_attr="csw_wkt_geometry")
     detail_url = indexes.CharField(model_attr="get_absolute_url")
-    owner__username = indexes.CharField(model_attr="owner", faceted=True, null=True)
-    owner__first_name = indexes.CharField(model_attr="owner__first_name", faceted=True, null=True)
-    owner__last_name = indexes.CharField(model_attr="owner__last_name", faceted=True, null=True)
+    owner__username = indexes.CharField(
+        model_attr="owner", faceted=True, null=True)
+    owner__first_name = indexes.CharField(
+        model_attr="owner__first_name", faceted=True, null=True)
+    owner__last_name = indexes.CharField(
+        model_attr="owner__last_name", faceted=True, null=True)
     is_published = indexes.BooleanField(model_attr="is_published")
     featured = indexes.BooleanField(model_attr="featured")
     popular_count = indexes.IntegerField(
-        model_attr="popular_count",
-        default=0,
-        boost=20)
+        model_attr="popular_count", default=0, boost=20)
     share_count = indexes.IntegerField(model_attr="share_count", default=0)
     rating = indexes.IntegerField(null=True)
     srid = indexes.CharField(model_attr="srid")
-    supplemental_information = indexes.CharField(model_attr="supplemental_information", null=True)
+    supplemental_information = indexes.CharField(
+        model_attr="supplemental_information", null=True)
     thumbnail_url = indexes.CharField(model_attr="thumbnail_url", null=True)
     uuid = indexes.CharField(model_attr="uuid")
     title = indexes.CharField(model_attr="title", boost=2)
     date = indexes.DateTimeField(model_attr="date")
 
-    text = indexes.EdgeNgramField(document=True, use_template=True, stored=False)
+    text = indexes.EdgeNgramField(
+        document=True, use_template=True, stored=False)
     type = indexes.CharField(faceted=True)
     subtype = indexes.CharField(faceted=True)
     alternate = indexes.CharField(model_attr='alternate')
-    title_sortable = indexes.CharField(indexed=False, stored=False)  # Necessary for sorting
+    title_sortable = indexes.CharField(
+        indexed=False, stored=False)  # Necessary for sorting
     category = indexes.CharField(
         model_attr="category__identifier",
         faceted=True,
         null=True,
         stored=True)
-    bbox_left = indexes.FloatField(model_attr="bbox_x0", null=True, stored=False)
-    bbox_right = indexes.FloatField(model_attr="bbox_x1", null=True, stored=False)
-    bbox_bottom = indexes.FloatField(model_attr="bbox_y0", null=True, stored=False)
-    bbox_top = indexes.FloatField(model_attr="bbox_y1", null=True, stored=False)
+    bbox_left = indexes.FloatField(
+        model_attr="bbox_x0", null=True, stored=False)
+    bbox_right = indexes.FloatField(
+        model_attr="bbox_x1", null=True, stored=False)
+    bbox_bottom = indexes.FloatField(
+        model_attr="bbox_y0", null=True, stored=False)
+    bbox_top = indexes.FloatField(
+        model_attr="bbox_y1", null=True, stored=False)
     temporal_extent_start = indexes.DateTimeField(
-        model_attr="temporal_extent_start",
-        null=True,
-        stored=False)
+        model_attr="temporal_extent_start", null=True, stored=False)
     temporal_extent_end = indexes.DateTimeField(
-        model_attr="temporal_extent_end",
-        null=True,
-        stored=False)
+        model_attr="temporal_extent_end", null=True, stored=False)
     keywords = indexes.MultiValueField(
-        model_attr="keyword_slug_list",
-        null=True,
-        faceted=True,
-        stored=True)
+        model_attr="keyword_slug_list", null=True, faceted=True, stored=True)
     regions = indexes.MultiValueField(
-        model_attr="region_name_list",
-        null=True,
-        faceted=True,
-        stored=True)
+        model_attr="region_name_list", null=True, faceted=True, stored=True)
     popular_count = indexes.IntegerField(
-        model_attr="popular_count",
-        default=0,
-        boost=20)
+        model_attr="popular_count", default=0, boost=20)
     share_count = indexes.IntegerField(model_attr="share_count", default=0)
     rating = indexes.IntegerField(null=True)
     num_ratings = indexes.IntegerField(stored=False)
     num_comments = indexes.IntegerField(stored=False)
+    has_time = indexes.BooleanField(faceted=True, null=True)
 
     def get_model(self):
         return Layer
 
     def prepare_type(self, obj):
         return "layer"
+
+    # Check to see if either time extent is set on the object,
+    # if so, then it is time enabled.
+    def prepare_has_time(self, obj):
+        try:
+            # if either time field is set to a value then time is enabled.
+            if (obj.temporal_extent_start is not None
+                    or obj.temporal_extent_end is not None):
+                return True
+        except:
+            # when in doubt, it's false.
+            return False
 
     def prepare_subtype(self, obj):
         if obj.storeType == "dataStore":
@@ -114,8 +124,7 @@ class LayerIndex(indexes.SearchIndex, indexes.Indexable):
         try:
             rating = OverallRating.objects.filter(
                 object_id=obj.pk,
-                content_type=ct
-            ).aggregate(r=Avg("rating"))["r"]
+                content_type=ct).aggregate(r=Avg("rating"))["r"]
             return float(str(rating or "0"))
         except OverallRating.DoesNotExist:
             return 0.0
@@ -124,9 +133,7 @@ class LayerIndex(indexes.SearchIndex, indexes.Indexable):
         ct = ContentType.objects.get_for_model(obj)
         try:
             return OverallRating.objects.filter(
-                object_id=obj.pk,
-                content_type=ct
-            ).all().count()
+                object_id=obj.pk, content_type=ct).all().count()
         except OverallRating.DoesNotExist:
             return 0
 
@@ -134,8 +141,8 @@ class LayerIndex(indexes.SearchIndex, indexes.Indexable):
         try:
             return Comment.objects.filter(
                 object_id=obj.pk,
-                content_type=ContentType.objects.get_for_model(obj)
-            ).all().count()
+                content_type=ContentType.objects.get_for_model(
+                    obj)).all().count()
         except BaseException:
             return 0
 

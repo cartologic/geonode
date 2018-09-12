@@ -223,6 +223,7 @@
               // console.log(err);
           }
       }
+      $rootScope.has_time_count = data.meta.facets.has_time.T;
   }
 
   /*
@@ -473,7 +474,7 @@
         }
         element.addClass('active');
       }
-
+      
       //save back the new query entry to the scope query
       $scope.query[data_filter] = query_entry;
 
@@ -512,7 +513,21 @@
         query_api($scope.query);
       }
     }
+    
+    $scope.filterTime = function($event) {
+      var element = $($event.target);
+      var on = (element[0].checked === true);
 
+      if(on) {
+          $scope.query['has_time'] = 'true';
+      } else {
+          if($scope.query['has_time']) {
+              delete $scope.query['has_time'];
+          }
+      }
+
+      query_api($scope.query);
+    }
     /*
     * Text search management
     */
