@@ -672,6 +672,10 @@
           leafletData.getMap().then(function(map) {
             map.invalidateSize();
           });
+        }else {
+          /* clear the extent filter when the map is hidden */
+          delete $scope.query['extent'];
+          query_api($scope.query);
         }
       });
     }
