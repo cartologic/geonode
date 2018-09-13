@@ -110,6 +110,7 @@ urlpatterns += [
         name='search'),
 
     # Social views
+    url(r"^account/logout/$", views.Logout.as_view(), name="account_logout"),
     url(r"^account/", include("allauth.urls")),
     url(r'^invitations/', include(
         'geonode.invitations.urls', namespace='geonode.invitations')),

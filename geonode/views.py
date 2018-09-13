@@ -29,6 +29,7 @@ except ImportError:
     from django.utils import simplejson as json
 from django.db.models import Q
 from django.template.response import TemplateResponse
+from allauth.account.views import LogoutView
 
 from geonode import get_version
 from geonode.base.templatetags.base_tags import facets
@@ -101,6 +102,16 @@ def ajax_lookup(request):
         content=json.dumps(json_dict),
         content_type='text/plain'
     )
+
+
+class Logout(LogoutView):
+    def post(self, *args, **kwargs):
+        response = super(Logout, self).post(*args, **kwargs)
+        for cookie in self.request.COOKIES:
+            name = str(cookie)
+            if name != 'csrftoken':
+                response.delete_cookie(name)
+        return response
 
 
 def err403(request):
