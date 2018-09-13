@@ -69,7 +69,7 @@ def services(request):
     return render(
         request,
         "services/service_list.html",
-        {"services": Service.objects.all()}
+        {"services": Service.objects.all().order_by('name')}
     )
 
 
