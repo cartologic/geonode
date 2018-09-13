@@ -614,7 +614,8 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
         links) if item.url and 'wms' not in item.url and 'gwc' not in item.url]
     for item in links_view:
         if item.url and access_token and 'access_token' not in item.url:
-            params = {'access_token': access_token}
+            # set time to get all features for time enabled layers
+            params = {'access_token': access_token, 'time': "0/9999"}
             item.url = Request('GET', item.url, params=params).prepare().url
     for item in links_download:
         if item.url and access_token and 'access_token' not in item.url:
