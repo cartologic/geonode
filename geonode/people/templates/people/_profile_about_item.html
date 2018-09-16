@@ -2,7 +2,7 @@
 {% load i18n %}
 <div class="pull-left">
   {% with 48 as avatar_size %}
-  <a href="{% url " profile_detail" profile.username %}" class="avatar">{% avatar profile avatar_size %}</a>
+  <a href="{% url "profile_detail" profile.username %}" class="avatar">{% avatar profile avatar_size %}</a>
   {% endwith %}
 </div>
 <div>
