@@ -82,7 +82,7 @@ class Document(ResourceBase):
 
     def find_placeholder(self):
         placeholder = 'documents/{0}-placeholder.png'
-        return finders.find(placeholder.format(self.extension), False) or \
+        return finders.find(placeholder.format(self.extension.lower()), False) or \
             finders.find(placeholder.format('generic'), False)
 
     def is_file(self):
