@@ -1439,7 +1439,8 @@ def do_login(sender, user, request, **kwargs):
                 application=app,
                 expires=expires,
                 token=token)
-        except BaseException:
+        except BaseException as e:
+            logging.error(e)
             logging.debug("Unable to get_or_create token so defaulting to uuid")
             u = uuid.uuid1()
             token = u.hex
