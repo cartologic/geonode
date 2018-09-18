@@ -125,7 +125,5 @@ notifications:
       - "irc.freenode.org#geonode"
     use_notice: true
   email:
-    - alessio.fabiani@gmail.com
-    - ingenieroariel@gmail.com
-    - simone.dalmasso@gmail.com
-  slack: geonode-sprint:oQylJRkU9feZ8JruGi6czWwe
+    - ahmednoureldeen@cartologic.com
+    - hisham.karam@cartologic.com
