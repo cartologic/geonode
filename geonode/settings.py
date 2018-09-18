@@ -135,6 +135,7 @@ MANAGERS = ADMINS = os.getenv('ADMINS', [])
 TIME_ZONE = os.getenv('TIME_ZONE', "UTC")
 
 SITE_ID = int(os.getenv('SITE_ID', '1'))
+SITENAME = os.getenv('SITENAME', 'Geonode')
 
 USE_TZ = True
 USE_I18N = strtobool(os.getenv('USE_I18N', 'True'))
