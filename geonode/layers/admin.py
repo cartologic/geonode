@@ -19,6 +19,7 @@
 #########################################################################
 
 from django.contrib import admin
+from django.contrib import messages
 
 from geonode.base.admin import MediaTranslationAdmin, ResourceBaseAdminForm
 from geonode.base.admin import metadata_batch_edit
@@ -71,9 +72,17 @@ class DefaultStyleListFilter(admin.SimpleListFilter):
 
 
 def sync_styles(modeladmin, request, queryset):
+    count = 0
     for instance in queryset:
-        set_styles(instance, gs_catalog)
-        instance.save()
+        try:
+            if instance.storeType not in ['remoteStore']:
+                set_styles(instance, gs_catalog)
+                instance.save()
+                count =+ 1
+        except Exception as e:
+            messages.error(request, '%s for %s' % (str(e), instance.name))
+    messages.success(request,
+                     'Styles for %d layers synchronized succcessfully.' % count)
 
 
 sync_styles.short_description = 'Sync remote styles'
