@@ -1651,3 +1651,93 @@ if USE_WORLDMAP:
     HYPERMAP_REGISTRY_URL = os.getenv('HYPERMAP_REGISTRY_URL', 'http://localhost:8001')
     SOLR_URL = os.getenv('SOLR_URL', 'http://localhost:8983/solr/hypermap/select/')
     MAPPROXY_URL = os.getenv('MAPPROXY_URL', 'http://localhost:8001')
+
+
+ENABLE_SOCIAL_LOGIN = strtobool(os.getenv('ENABLE_SOCIAL_LOGIN', 'False'))
+
+if ENABLE_SOCIAL_LOGIN:
+    SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/'
+
+    AUTHENTICATION_BACKENDS += (
+        'social_core.backends.google.GoogleOpenId',
+        'social_core.backends.google.GoogleOAuth2',
+        'social_core.backends.facebook.FacebookOAuth2',
+        'exchange.auth.backends.auth0.AuthZeroOAuth2',
+        'social_core.backends.azuread.AzureADOAuth2',
+    )
+
+    DEFAULT_AUTH_PIPELINE = (
+        'social_core.pipeline.social_auth.social_details',
+        'social_core.pipeline.social_auth.social_uid',
+        'social_core.pipeline.social_auth.auth_allowed',
+        'social_core.pipeline.social_auth.social_user',
+        'social_core.pipeline.user.get_username',
+        'social_core.pipeline.mail.mail_validation',
+        'social_core.pipeline.social_auth.associate_by_email',
+        'social_core.pipeline.user.create_user',
+        'social_core.pipeline.social_auth.associate_user',
+        'social_core.pipeline.social_auth.load_extra_data',
+        'social_core.pipeline.user.user_details')
+
+    # Auth0
+    SOCIAL_AUTH_AUTH0_KEY = os.getenv('OAUTH_AUTH0_KEY', None)
+    SOCIAL_AUTH_AUTH0_OIDC_CONFORMANT = strtobool(
+        os.getenv('OAUTH_AUTH0_OIDC_CONFORMANT', 'False'))
+    SOCIAL_AUTH_AUTH0_MOBILE_KEY = os.getenv('OAUTH_AUTH0_MOBILE_KEY', None)
+    SOCIAL_AUTH_AUTH0_SECRET = os.getenv('OAUTH_AUTH0_SECRET', None)
+    SOCIAL_AUTH_AUTH0_HOST = os.getenv('OAUTH_AUTH0_HOST', None)
+    ENABLE_AUTH0_LOGIN = SOCIAL_AUTH_AUTH0_KEY
+    SOCIAL_AUTH_AUTH0_SCOPE = [
+        'sub', 'nickname', 'email', 'profile', 'picture', 'email_verfied',
+        'name', 'openid', 'given_name', 'user_id', 'family_name',
+        'preferred_username'
+    ]
+    if ENABLE_AUTH0_LOGIN:
+        DEFAULT_SOCIAL_PROVIDER = 'auth0'
+    AUTH0_APP_NAME = os.getenv('AUTH0_APP_NAME', 'Connect')
+    OAUTH_AUTH0_ADMIN_ROLES = os.getenv('OAUTH_AUTH0_ADMIN_ROLES', "")
+    OAUTH_AUTH0_ALLOWED_ROLES = os.getenv('OAUTH_AUTH0_ALLOWED_ROLES', "")
+
+    if OAUTH_AUTH0_ADMIN_ROLES.strip():
+        AUTH0_ADMIN_ROLES = map(str.strip, OAUTH_AUTH0_ADMIN_ROLES.split(','))
+    if OAUTH_AUTH0_ALLOWED_ROLES.strip():
+        AUTH0_ALLOWED_ROLES = map(str.strip,
+                                  OAUTH_AUTH0_ALLOWED_ROLES.split(','))
+
+    # Microsoft Azure Active Directory
+    SOCIAL_AUTH_AZUREAD_OAUTH2_KEY = os.getenv('OAUTH_AZUREAD_KEY', None)
+    SOCIAL_AUTH_AZUREAD_OAUTH2_SECRET = os.getenv('OAUTH_AZUREAD_SECRET', None)
+    SOCIAL_AUTH_AZUREAD_OAUTH2_RESOURCE = os.getenv(
+        'OAUTH_AZUREAD_RESOURCE', 'https://graph.microsoft.com/')  # noqa
+    ENABLE_MICROSOFT_AZURE_LOGIN = SOCIAL_AUTH_AZUREAD_OAUTH2_KEY
+
+    # Microsoft Azure Active Directory Tenant Support
+    SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_KEY = os.getenv(
+        'OAUTH_AZUREAD_TENANT_KEY',  # noqa
+        None)
+    SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_SECRET = os.getenv(
+        'OAUTH_AZUREAD_TENANT_SECRET',  # noqa
+        None)
+    SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_TENANT_ID = os.getenv(
+        'OAUTH_AZUREAD_TENANT_ID',  # noqa
+        None)
+    SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_RESOURCE = os.getenv(
+        'OAUTH_AZUREAD_TENANT_RESOURCE',  # noqa
+        'https://graph.microsoft.com/')  # noqa
+
+    # Facebook
+    SOCIAL_AUTH_FACEBOOK_KEY = os.getenv('OAUTH_FACEBOOK_KEY', None)
+    SOCIAL_AUTH_FACEBOOK_SECRET = os.getenv('OAUTH_FACEBOOK_SECRET', None)
+    OAUTH_FACEBOOK_SCOPES = os.getenv('OAUTH_FACEBOOK_SCOPES', 'email')
+    SOCIAL_AUTH_FACEBOOK_SCOPE = map(str.strip,
+                                     OAUTH_FACEBOOK_SCOPES.split(','))
+    SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
+        'fields':
+        os.getenv('OAUTH_FACEBOOK_PROFILE_EXTRA_PARAMS', 'id,name,email'),
+    }
+    ENABLE_FACEBOOK_LOGIN = SOCIAL_AUTH_FACEBOOK_KEY
+
+    # Google
+    SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv('OAUTH_GOOGLE_KEY', None)
+    SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv('OAUTH_GOOGLE_SECRET', None)
+    ENABLE_GOOGLE_LOGIN = SOCIAL_AUTH_GOOGLE_OAUTH2_KEY
