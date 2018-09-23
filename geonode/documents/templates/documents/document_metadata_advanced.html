@@ -45,7 +45,7 @@
         </ul>
       {% endif %}
         <div class="form-actions">
-          <input type="submit" id="btn_upd_md_up" class="btn btn-primary" value="{% trans "Update" %}"/>
+          <input type="submit" id="btn_upd_md_up" class="btn btn-primary" value="{% trans "Update" %}" disabled="disabled"/>
         </div>
       {% csrf_token %}
       <div class="form-controls">
@@ -89,7 +89,7 @@
                 <button type='button' class="modal-cloose-btn btn btn-primary">Done</button>
               </fieldset>
               <div class="form-actions">
-                <input type="submit" id="btn_upd_md_dwn" class="btn btn-primary" value="{% trans "Update" %}"/>
+                <input type="submit" id="btn_upd_md_dwn" class="btn btn-primary" value="{% trans "Update" %}" disabled="disabled"/>
               </div>
           </div>
         </div>

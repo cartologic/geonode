@@ -198,6 +198,10 @@
     $(document).ready(function() {
         var prevNum = 0, totalNum = 0;
         var empty = 0;
+
+        $('#btn_upd_md_up').prop('disabled', false);
+        $('#btn_upd_md_dwn').prop('disabled', false);
+
         $('#completeness-hints .mandatory-hint').click(getTab.bind(null, 1));
         $('#completeness-hints .advanced-hint').click(getTab.bind(null, 2));
 
