@@ -24,6 +24,7 @@ from geonode.base.admin import MediaTranslationAdmin, ResourceBaseAdminForm
 from geonode.base.admin import metadata_batch_edit
 from geonode.layers.models import Layer, Attribute, Style
 from geonode.layers.models import LayerFile, UploadSession
+from geonode.geoserver.helpers import set_styles, gs_catalog
 
 
 class AttributeInline(admin.TabularInline):
@@ -31,10 +32,51 @@ class AttributeInline(admin.TabularInline):
 
 
 class LayerAdminForm(ResourceBaseAdminForm):
-
     class Meta:
         model = Layer
         fields = '__all__'
+
+
+class DefaultStyleListFilter(admin.SimpleListFilter):
+    # Human-readable title which will be displayed in the
+    # right admin sidebar just above the filter options.
+    title = 'has default style'
+    # Parameter for the filter that will be used in the URL query.
+    parameter_name = 'has_default_style'
+
+    def lookups(self, request, model_admin):
+        """
+        Returns a list of tuples. The first element in each
+        tuple is the coded value for the option that will
+        appear in the URL query. The second element is the
+        human-readable name for the option that will appear
+        in the right sidebar. In this case display a filter
+        option for whethe a layer has a default style or not.
+        """
+        return (
+            ('true', 'Yes'),
+            ('false', 'No')
+        )
+
+    def queryset(self, request, queryset):
+        """
+        Returns the filtered queryset based on the value
+        provided in the query string and retrievable via
+        `self.value()`.
+        """
+        if self.value() == 'true':
+            return queryset.filter(default_style__isnull=False)
+        elif self.value() == 'false':
+            return queryset.filter(default_style__isnull=True)
+
+
+def sync_styles(modeladmin, request, queryset):
+    for instance in queryset:
+        set_styles(instance, gs_catalog)
+        instance.save()
+
+
+sync_styles.short_description = 'Sync remote styles'
 
 
 class LayerAdmin(MediaTranslationAdmin):
@@ -52,7 +94,7 @@ class LayerAdmin(MediaTranslationAdmin):
     list_editable = ('title', 'category', 'group', 'is_approved', 'is_published')
     list_filter = ('storeType', 'owner', 'category', 'group',
                    'restriction_code_type__identifier', 'date', 'date_type',
-                   'is_approved', 'is_published')
+                   'is_approved', 'is_published', DefaultStyleListFilter)
     search_fields = ('alternate', 'title', 'abstract', 'purpose',
                      'is_approved', 'is_published',)
     filter_horizontal = ('contacts',)
@@ -60,7 +102,7 @@ class LayerAdmin(MediaTranslationAdmin):
     readonly_fields = ('uuid', 'alternate', 'workspace')
     inlines = [AttributeInline]
     form = LayerAdminForm
-    actions = [metadata_batch_edit]
+    actions = [metadata_batch_edit, sync_styles]
 
 
 class AttributeAdmin(admin.ModelAdmin):

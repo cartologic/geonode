@@ -28,6 +28,7 @@ import StringIO
 from autocomplete_light.forms import ModelForm
 from autocomplete_light.forms import modelform_factory
 from autocomplete_light.contrib.taggit_field import TaggitField, TaggitWidget
+from guardian.admin import GuardedModelAdmin
 
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
@@ -57,7 +58,7 @@ def metadata_batch_edit(modeladmin, request, queryset):
 metadata_batch_edit.short_description = 'Metadata batch edit'
 
 
-class MediaTranslationAdmin(TranslationAdmin):
+class MediaTranslationAdmin(TranslationAdmin, GuardedModelAdmin):
     class Media:
         js = (
             'modeltranslation/js/tabbed_translation_fields.js',
