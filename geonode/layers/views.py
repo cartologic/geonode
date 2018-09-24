@@ -1419,11 +1419,17 @@ def get_layer(request, layername):
         for style in layer_obj.styles.all():
             styles.append(style.name)
 
+        url = layer_obj.get_tiles_url()
+        if layer_obj.is_remote:
+            url = layer_obj.ows_url
+
         response = {
             'typename': layername,
             'name': layer_obj.name,
             'title': layer_obj.title,
-            'url': layer_obj.get_tiles_url(),
+            'ptype': layer_obj.ptype,
+            'url': url,
+            'remote': layer_obj.is_remote,
             'bbox_string': layer_obj.bbox_string,
             'bbox_x0': layer_obj.bbox_x0,
             'bbox_x1': layer_obj.bbox_x1,
