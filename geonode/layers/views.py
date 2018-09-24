@@ -1414,6 +1414,11 @@ def get_layer(request, layername):
         layer_obj = _resolve_layer(request, layername)
         visible_attributes = layer_obj.attribute_set.visible()
         logger.debug(layername)
+
+        styles = []
+        for style in layer_obj.styles.all():
+            styles.append(style.name)
+
         response = {
             'typename': layername,
             'name': layer_obj.name,
@@ -1425,6 +1430,7 @@ def get_layer(request, layername):
             'bbox_y0': layer_obj.bbox_y0,
             'bbox_y1': layer_obj.bbox_y1,
             'type': slugify(layer_obj.display_type),
+            'styles': styles,
             'versioned': layer_obj.geogig_enabled,
             'attributes': attributes_as_json(layer_obj)
         }
