@@ -1426,7 +1426,7 @@ def get_layer(request, layername):
             'bbox_y1': layer_obj.bbox_y1,
             'type': slugify(layer_obj.display_type),
             'versioned': layer_obj.geogig_enabled,
-            'attributes': dict([(l.attribute, l.attribute_label) for l in visible_attributes]),
+            'attributes': attributes_as_json(layer_obj)
         }
         return HttpResponse(json.dumps(
             response,
@@ -1434,6 +1434,24 @@ def get_layer(request, layername):
             default=decimal_default
         ),
             content_type='application/javascript')
+
+
+def attributes_as_json(layer):
+    attributes = []
+    for attribute in layer.attributes:
+        attributes.append(attribute_as_json(attribute))
+    return attributes
+
+
+def attribute_as_json(attribute):
+    return {
+        'attribute': attribute.attribute,
+        'description': attribute.description,
+        'attribute_label': attribute.attribute_label,
+        'attribute_type': attribute.attribute_type,
+        'visible': attribute.visible,
+        'display_order': attribute.display_order
+    }
 
 
 def layer_metadata_detail(
