@@ -73,13 +73,16 @@ def get_git_changeset():
 
 def get_git_commit():
     repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    _commit = subprocess.Popen(
-        'git rev-parse --short HEAD',
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        shell=True,
-        cwd=repo_dir,
-        universal_newlines=True
-    )
-    commit = _commit.communicate()[0].partition('\n')[0]
+    try:
+        _commit = subprocess.Popen(
+            'git rev-parse --short HEAD',
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=True,
+            cwd=repo_dir,
+            universal_newlines=True
+        )
+        commit = _commit.communicate()[0].partition('\n')[0]
+    except:
+        commit = None
     return commit
