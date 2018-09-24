@@ -513,7 +513,7 @@ def geoserver_proxy(request,
     url = urlsplit(raw_url)
 
     affected_layers = None
-    if request.method in ("POST", "PUT"):
+    if request.method in ("POST", "GET", "PUT"):
         if downstream_path in ('rest/styles', 'rest/layers',
                                'rest/workspaces') and len(request.body) > 0:
             if not style_change_check(request, downstream_path):
