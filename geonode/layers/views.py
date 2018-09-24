@@ -1420,8 +1420,12 @@ def get_layer(request, layername):
             styles.append(style.name)
 
         url = layer_obj.get_tiles_url()
-        if layer_obj.is_remote:
+        if layer_obj.storeType == "remoteStore":
             url = layer_obj.ows_url
+
+        permissions = {'edit_style': False}
+        if request.user.has_perm('change_layer_style', obj=layer_obj):
+            permissions.update({'edit_style': True})
 
         response = {
             'typename': layername,
@@ -1429,7 +1433,7 @@ def get_layer(request, layername):
             'title': layer_obj.title,
             'ptype': layer_obj.ptype,
             'url': url,
-            'remote': layer_obj.is_remote,
+            'remote': layer_obj.storeType == "remoteStore",
             'bbox_string': layer_obj.bbox_string,
             'bbox_x0': layer_obj.bbox_x0,
             'bbox_x1': layer_obj.bbox_x1,
@@ -1437,6 +1441,7 @@ def get_layer(request, layername):
             'bbox_y1': layer_obj.bbox_y1,
             'type': slugify(layer_obj.display_type),
             'styles': styles,
+            'permissions': permissions,
             'versioned': layer_obj.geogig_enabled,
             'attributes': attributes_as_json(layer_obj)
         }
