@@ -455,13 +455,6 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
-        'celery': {
-            'level': 'ERROR',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': 'celery.log',
-            'formatter': 'simple',
-            'maxBytes': 1024 * 1024 * 10,  # 10 mb
-        },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
@@ -482,7 +475,7 @@ LOGGING = {
         "pycsw": {
             "handlers": ["console"], "level": "ERROR", },
         "celery": {
-            'handlers': ['celery', 'console'], 'level': 'ERROR', },
+            "handlers": ["console"], "level": "ERROR", },
     },
 }
 
