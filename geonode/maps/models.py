@@ -174,6 +174,8 @@ class Map(ResourceBase, GXPMapBase):
 
         self.title = conf['about']['title']
         self.abstract = conf['about']['abstract']
+        if 'refresh_interval' in conf['about']:
+            self.refresh_interval = conf['about']['refresh_interval']
 
         center = conf['map']['center'] if 'center' in conf['map'] else settings.DEFAULT_MAP_CENTER
         zoom = conf['map']['zoom'] if 'zoom' in conf['map'] else settings.DEFAULT_MAP_ZOOM
