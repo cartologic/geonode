@@ -37,6 +37,7 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.clickjacking import (xframe_options_exempt,
                                                   xframe_options_sameorigin)
 from django.views.decorators.http import require_http_methods
+from geonode.services.enumerations import GN_WMS, WMS, REST_MAP, REST_IMG
 from guardian.shortcuts import get_perms
 from requests.compat import urljoin
 
@@ -931,7 +932,7 @@ def add_layers_to_map_config(
         if layer.storeType == "remoteStore":
             service = layer.remote_service
             source_params = {}
-            if service.type in ('REST_MAP', 'REST_IMG'):
+            if service.type in (GN_WMS, WMS, REST_MAP, REST_IMG):
                 source_params = {
                     "ptype": service.ptype,
                     "remote": True,
