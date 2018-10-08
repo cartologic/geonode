@@ -33,6 +33,7 @@ from celery.exceptions import TimeoutError
 
 from django.contrib.gis.geos import GEOSGeometry
 from django.template.response import TemplateResponse
+from geonode.services.enumerations import *
 from requests import Request
 from itertools import chain
 from six import string_types
@@ -453,7 +454,7 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
     if layer.storeType == "remoteStore":
         service = layer.remote_service
         source_params = {}
-        if service.type in ('REST_MAP', 'REST_IMG'):
+        if service.type in (GN_WMS, WMS, REST_MAP, REST_IMG):
             source_params = {
                 "ptype": service.ptype,
                 "remote": True,
@@ -837,7 +838,7 @@ def layer_metadata(
     if layer.storeType == "remoteStore":
         service = layer.remote_service
         source_params = {}
-        if service.type in ('REST_MAP', 'REST_IMG'):
+        if service.type in (GN_WMS, WMS, REST_MAP, REST_IMG):
             source_params = {
                 "ptype": service.ptype,
                 "remote": True,
