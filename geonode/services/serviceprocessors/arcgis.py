@@ -258,7 +258,7 @@ class ArcMapServiceHandler(base.ServiceHandlerBase):
         """Create a thumbnail with a WMS request."""
         params = {
             "service": "WMS",
-            "version": self.parsed_service.version,
+            "version": self.parsed_service._json_struct["currentVersion"],
             "request": "GetMap",
             "layers": geonode_layer.alternate.encode('utf-8'),
             "bbox": geonode_layer.bbox_string,
