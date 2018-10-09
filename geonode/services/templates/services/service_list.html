@@ -23,7 +23,7 @@
     <td><a title="{{ service.title }}" href='{% url "service_detail" service.id %}'>
         {{ service.name }}
         <span class="badge">{{ service.layer_set.count }}</span></a></td>
-	<td><a href='{{ service.base_url }}' target="_blank" rel="noopener noreferrer">{{ service.base_url }}</a></td>
+	<td><a href='{{ service.base_url }}' target="_blank" rel="noopener noreferrer">{{ service.base_url|truncatechars:60 }}</a></td>
     <td>{{ service.service_type }}</td>
     <td><a href='{% url "service_detail" service.id %}'>{{ service.owner.username }}</a></td>
     <td><a href='{% url "service_detail" service.id %}'>{{ service.is_published }}</a></td>
