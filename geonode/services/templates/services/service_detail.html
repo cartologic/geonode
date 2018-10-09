@@ -57,6 +57,13 @@ Ext.onReady(function() {
                 <th>Description</th>
                 </thead>
                 {% for job in resource_jobs %}
+                   {% if forloop.first %}
+                        <script>
+                        setTimeout(function(){
+                            window.location.reload(true);
+                        }, 7000);
+                        </script>
+                    {% endif %}
                     <tr>
                         <td>{{job.resource_id}}</td>
                         <td>
@@ -68,6 +75,12 @@ Ext.onReady(function() {
                                     <div class="btn-group pull-right">
                                         <button title="Retry job" class="btn" name="retry-{{ job.resource_id }}"><i class="fa fa-refresh fa-fw" aria-hidden="true"></i></button>
                                     </div>
+                                {% else %}
+                                 <div class="btn-group pull-right">
+                                     <div class="btn">
+                                         <i class="fa fa-spinner fa-spin"></i>
+                                     </div>
+                                 </div>
                                 {% endif %}
                             </div>
                         </td>
