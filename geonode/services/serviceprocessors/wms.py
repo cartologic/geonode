@@ -238,7 +238,7 @@ class WmsServiceHandler(base.ServiceHandlerBase,
     def _create_layer_thumbnail(self, geonode_layer):
         """Create a thumbnail with a WMS request."""
         params = {
-            "service": "WMS",
+            "service": self.service_type,
             "version": self.parsed_service.version,
             "request": "GetMap",
             "layers": geonode_layer.alternate.encode('utf-8'),
@@ -270,7 +270,7 @@ class WmsServiceHandler(base.ServiceHandlerBase,
         """
 
         params = {
-            "service": "WMS",
+            "service": self.service_type,
             "version": self.parsed_service.version,
             "request": "GetLegendGraphic",
             "format": "image/png",
@@ -314,7 +314,7 @@ class WmsServiceHandler(base.ServiceHandlerBase,
                 ),
                 "url": geonode_layer.ows_url,
                 "mime": "text/html",
-                "link_type": "OGC:WMS",
+                "link_type": "OGC:{}".format(geonode_layer.remote_service.type),
             }
         )
 
