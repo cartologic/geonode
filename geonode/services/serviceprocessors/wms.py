@@ -58,7 +58,6 @@ def WebMapService(url,
                   password=None,
                   parse_remote_metadata=False,
                   timeout=30,
-                  headers=None,
                   proxy_base=None):
     """
     API for Web Map Service (WMS) methods and metadata.
@@ -90,12 +89,12 @@ def WebMapService(url,
         return (base_ows_url, wms111.WebMapService_1_1_1(clean_url, version=version, xml=xml,
                                                          parse_remote_metadata=parse_remote_metadata,
                                                          username=username, password=password,
-                                                         timeout=timeout, headers=headers))
+                                                         timeout=timeout))
     elif version in ['1.3.0']:
         return (base_ows_url, wms130.WebMapService_1_3_0(clean_url, version=version, xml=xml,
                                                          parse_remote_metadata=parse_remote_metadata,
                                                          username=username, password=password,
-                                                         timeout=timeout, headers=headers))
+                                                         timeout=timeout))
     raise NotImplementedError(
         'The WMS version (%s) you requested is not implemented. Please use 1.1.1 or 1.3.0.' %
         version)
