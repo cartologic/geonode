@@ -12,7 +12,7 @@
     {% for resource in resources %}
         <tr>
             <td><input type="checkbox" name="resource_list" id="option_{{resource.id}}" value="{{ resource.id }}" checked/></td>
-            <td>{{ resource.name }}</td>
+            <td>{{ resource.title }}</td>
             <td>{{ resource.extent.spatialReference.wkid }}</td>
             <td>{% if resource.description|length > 0 %}
                 {{ resource.description }}
