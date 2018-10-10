@@ -238,6 +238,9 @@ class WmsServiceHandler(base.ServiceHandlerBase,
         geonode_layer.save()
         return geonode_layer
 
+    def has_resources(self):
+        return True if len(self.parsed_service.contents) > 0 else False
+
     def _create_layer_thumbnail(self, geonode_layer):
         """Create a thumbnail with a WMS request."""
         params = {
