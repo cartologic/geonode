@@ -76,6 +76,33 @@ _esri_types = {
 }
 
 
+def epsg_string(bbox):
+    logging.debug('bbox: %s', bbox)
+    if 'spatialReference' in bbox:
+        sr = bbox['spatialReference']
+        if 'latestWkid' in sr:
+            return "EPSG:%s" % sr['latestWkid']
+        if 'wkt' in sr:
+            wkt = sr['wkt']
+            logging.debug('wkt: %s', wkt)
+            ref = osr.SpatialReference()
+            ref.ImportFromWkt(wkt)
+            ref.MorphFromESRI()
+            matches = ref.FindMatches()
+            if len(matches) > 0:
+                match = matches[0][0]
+                code = match.GetAuthorityCode('PROJCS')
+                if code:
+                    return "EPSG:%s" % code
+                code = match.GetAuthorityCode('GEOGCS')
+                if code:
+                    return "EPSG:%s" % code
+                code = match.GetAuthorityCode(None)
+                if code:
+                    return "EPSG:%s" % code
+
+    return None
+
 
 class ArcMapServiceHandler(base.ServiceHandlerBase):
     """Remote service handler for ESRI:ArcGIS:MapServer services"""
@@ -232,7 +259,7 @@ class ArcMapServiceHandler(base.ServiceHandlerBase):
         return geonode_projection in "EPSG:{}".format(srs)
 
     def _get_indexed_layer_fields(self, layer_meta):
-        srs = "EPSG:%s" % layer_meta.extent.spatialReference.wkid
+        srs = epsg_string(layer_meta.extent)
         bbox = utils.decimal_encode([layer_meta.extent.xmin,
                                      layer_meta.extent.ymin,
                                      layer_meta.extent.xmax,
