@@ -34,6 +34,8 @@ from geonode.layers.models import Layer
 from geonode.layers.utils import create_thumbnail
 
 from arcrest import MapService as ArcMapService, ImageService as ArcImageService
+from geonode.utils import set_attributes
+from osgeo import osr
 
 from .. import enumerations
 from ..enumerations import INDEXED
@@ -57,6 +59,22 @@ MapLayer = namedtuple("MapLayer",
                       fields, \
                       minScale, \
                       maxScale")
+_esri_types = {
+    "esriFieldTypeDouble": "xsd:double",
+    "esriFieldTypeString": "xsd:string",
+    "esriFieldTypeSmallInteger": "xsd:int",
+    "esriFieldTypeInteger": "xsd:int",
+    "esriFieldTypeDate": "xsd:dateTime",
+    "esriFieldTypeOID": "xsd:long",
+    "esriFieldTypeGeometry": "xsd:geometry",
+    "esriFieldTypeBlob": "xsd:base64Binary",
+    "esriFieldTypeRaster": "raster",
+    "esriFieldTypeGUID": "xsd:string",
+    "esriFieldTypeGlobalID": "xsd:string",
+    "esriFieldTypeXML": "xsd:anyType",
+    "esriFieldTypeSingle": "xsd:float"
+}
+
 
 
 class ArcMapServiceHandler(base.ServiceHandlerBase):
@@ -192,11 +210,12 @@ class ArcMapServiceHandler(base.ServiceHandlerBase):
             if settings.RESOURCE_PUBLISHING or settings.ADMIN_MODERATE_UPLOADS:
                 resource_fields["is_approved"] = False
                 resource_fields["is_published"] = False
-            geonode_layer = self._create_layer(
-                geonode_service, **resource_fields)
+            geonode_layer = self._create_layer(geonode_service, **resource_fields)
             # self._enrich_layer_metadata(geonode_layer)
             self._create_layer_service_link(geonode_layer)
-            # self._create_layer_legend_link(geonode_layer)
+            self._create_layer_thumbnail(geonode_layer)
+            self._create_layer_legend_link(geonode_layer)
+            self._create_layer_attributes(geonode_layer, layer_meta)
         else:
             raise RuntimeError(
                 "Resource {!r} cannot be harvested".format(resource_id))
@@ -296,6 +315,45 @@ class ArcMapServiceHandler(base.ServiceHandlerBase):
                 "url": geonode_layer.ows_url,
                 "mime": "text/html",
                 "link_type": "ESRI:{}".format(geonode_layer.remote_service.type),
+            }
+        )
+
+    def _create_layer_attributes(self, geonode_layer, layer_meta):
+        """Get the layer's field name and types
+
+        Regardless of the service being INDEXED or CASCADED we're always
+        creating the layer attributes.
+
+        """
+
+        attribute_map = []
+        if layer_meta.fields:
+            attribute_map = [[n["name"], _esri_types[n["type"]]]
+                             for n in layer_meta.fields if n.get("name") and n.get("type")]
+
+        set_attributes(geonode_layer, attribute_map, overwrite=True)
+
+    def _create_layer_legend_link(self, geonode_layer):
+        """Get the layer's legend and save it locally
+
+        Regardless of the service being INDEXED or CASCADED we're always
+        creating the legend by making a request directly to the original
+        service.
+
+        """
+
+        legend_url = "{}/legend?f=pjson".format(self.url)
+
+        logger.debug("legend_url: {}".format(legend_url))
+        Link.objects.get_or_create(
+            resource=geonode_layer.resourcebase_ptr,
+            url=legend_url,
+            defaults={
+                "extension": 'json',
+                "name": 'Legend',
+                "url": legend_url,
+                "mime": 'application/json',
+                "link_type": 'data',
             }
         )
 
