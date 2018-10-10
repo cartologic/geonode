@@ -232,6 +232,10 @@ class WmsServiceHandler(base.ServiceHandlerBase,
         geonode_layer.save()
         geonode_layer.keywords.add(*keywords)
         geonode_layer.set_default_permissions()
+        self._create_layer_service_link(geonode_layer)
+        self._create_layer_legend_link(geonode_layer)
+        # self._create_layer_thumbnail(geonode_layer)
+        geonode_layer.save()
         return geonode_layer
 
     def _create_layer_thumbnail(self, geonode_layer):
@@ -251,12 +255,14 @@ class WmsServiceHandler(base.ServiceHandlerBase,
         thumbnail_remote_url = "{}?{}".format(
             geonode_layer.remote_service.service_url, kvp)
         logger.debug("thumbnail_remote_url: {}".format(thumbnail_remote_url))
+        thumbnail_create_url = "{}?{}".format(geonode_layer.ows_url, kvp)
+        logger.debug("thumbnail_create_url: {}".format(thumbnail_create_url))
         create_thumbnail(
             instance=geonode_layer,
             thumbnail_remote_url=thumbnail_remote_url,
-            thumbnail_create_url=None,
-            check_bbox=False,
-            overwrite=True
+            thumbnail_create_url=thumbnail_create_url,
+            check_bbox=True,
+            overwrite=True,
         )
 
     def _create_layer_legend_link(self, geonode_layer):
